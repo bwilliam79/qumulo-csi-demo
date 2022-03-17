@@ -136,11 +136,12 @@ kubectl apply -f ./mysql-deployment.yaml
 sleep 5
 
 mysql_pod=`kubectl get pods | grep mysql | cut -f1 -d ' '`
+
 echo "\n\033[33;32mAccess mysql prompt using the following command\033[33;37m\"
 
 echo "kubectl exec -it $mysql_pod -- mysql -u root -p"
 
-echo "\n\033[33;33mThe default password is \"password\""
-echo "NOTE: it could take a few minutes before the mysql service is running\033[33;37m"
+echo "\n\033[33;33mThe default password is \"password\"\033[33;37m\"
+echo "\033[33;33mNOTE: it could take a few minutes before the mysql service is running\033[33;37m"
 
 echo "\nQumulo CSI driver setup complete."
