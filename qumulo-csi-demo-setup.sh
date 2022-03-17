@@ -81,7 +81,7 @@ else
 fi
 
 # Check for kubectl and install if not detected
-printf "Checking for kubectl...\n"
+printf "\nChecking for kubectl...\n"
 if kubectl version 2> /dev/null
 then
     printf ""
@@ -129,8 +129,11 @@ printf "\nDeploying mysql...\n"
 kubectl apply -f ./mysql-pvc-qumulo.yaml
 kubectl apply -f ./mysql-deployment.yaml
 
-# Wait a few seconds for mysql pod to deploy
-sleep 10
+until kubectl get pods | grep mysql 2>&1 > /dev/null
+do
+    printf "."
+    sleep 2
+done
 
 # Get the pod name for mysql deployment
 mysql_pod=`kubectl get pods | grep mysql | cut -f1 -d ' '`
@@ -175,7 +178,7 @@ fi
 
 git clone $test_db_repo
 # Correct path to .dump files in .sql imports
-sed -i '' "s/source /source \/test_db\//g" ./test_db/*.sql
+sed -i.bak "s/source /source \/test_db\//g" ./test_db/*.sql
 # Copy sql dumps into container for importing
 kubectl cp ./test_db $mysql_pod:/
 
