@@ -7,7 +7,7 @@
 - VMware Fusion
 - A deployed Qumulo filesystem (either OVA or physical)
 
-Before running the scripts qumulo-csi-demo-setup or qumulo-csi-demo-destroy scripts, edit them and change the following variables to match your environment:
+Before running the scripts `qumulo-csi-demo-setup.sh` or `qumulo-csi-demo-destroy.sh` scripts, edit them and change the following variables to match your environment:
 ```
 cluster_address="192.168.0.190"
 rest_port="8000"
