@@ -1,11 +1,8 @@
 #!/bin/sh
 
 # Author: Brandon Williams <bwilliams@qumulo.com>
-# This script will remove the directory and quota created by the qumulo-csi-demo-setup.sh script and delete the minikube instance it deployed
-# If the script completes successfully, you should no longer see a quota in the Qumulo UI or a directory within the volumes directory of the NFS export
 
 # Change these variables to match your envioronment.
-# You will need to manually create the NFS export in Qumulo prior to running this script.
 cluster_address="192.168.0.190"
 rest_port="8000"
 username="admin" # This user must have permissions to create directories on the Qumulo filesystem and connect to the API

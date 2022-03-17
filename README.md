@@ -2,9 +2,33 @@
 
 These scripts have only been tested on OS X and depend on VMware Fusion and an existing Qumulo filesystem.
 
-qumulo-csi-demo-setup.sh is designed to deploy a single node Kubernetes deployment, configure the Qumulo CSI driver to demonstrate persistent storage for containerzied workloads, and deploy a mysql instance using a persistent volume provisioined via the Qumulo CSI driver.
-If the script completes successfully, you should see a quota in the Qumulo UI and a directory within the volumes directory of the NFS export e.g. /k8s/volumes/pvc-24be5dae-8591-494a-9e93-ca14df36a5c8/. Instructions for accessing the mysql instance are displayed during the script's execution.
-It can take a few minutes before the mysql instance is fully running as it has to pull down a mysql container image, deploy, and initialize it. You should see activity within the Qumulo UI once the mysql instance has started.
+Prerequisites
+Client running OS X
+VMware Fusion
+A deployed Qumulo filesystem (either OVA or physical)
 
-qumulo-csi-demo-destroy.sh will remove the directory and quota created by the qumulo-csi-demo-setup.sh script and delete the minikube instance it deployed
-If the script completes successfully, you should no longer see a quota in the Qumulo UI or a directory within the volumes directory of the NFS export
+Before running the scripts qumulo-csi-demo-setup or qumulo-csi-demo-destroy scripts, edit them and change the following variables to match your environment:
+cluster_address="192.168.0.190"
+rest_port="8000"
+username="admin"
+password="Admin123"
+nfs_export="/k8s"
+
+qumulo-csi-demo-setup.sh
+This script performs the folloing tasks
+1. Installs the following components if they are not present:
+    - minikube
+    - homebrew
+    - git
+    - kubectl
+2. Create a directory on the Qumulo filesystem to be shared via NFS
+3. Create an NFS export using the directory created in step 1
+4. Deploy a Kubernetes cluster using minikube
+5. Provision and configure the Qumulo CSI driver
+6. Deploy a mysql instance on Kubernetes using a persistent volume from Qumulo
+7. Populate the mysql database with test data.
+
+qumulo-csi-demo-destroy.sh
+This script performs teh following tasks
+1. Deletes the mysql data on the Qumulo filesystem
+2. Deletes the Kubernetes deployment in minikube

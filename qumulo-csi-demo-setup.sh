@@ -1,11 +1,6 @@
 #!/bin/sh
 
 # Author: Brandon Williams <bwilliams@qumulo.com>
-# This script is designed to deploy a single node Kubernetes deployment and configure the Qumulo CSI driver to demonstrate persistent storage for containerzied workloads.
-# If the script completes successfully, you should see a quota in the Qumulo UI and a directory within the volumes directory of the NFS export
-# e.g. /k8s/volumes/pvc-24be5dae-8591-494a-9e93-ca14df36a5c8/
-#
-# Prerequisites: Existing Qumulo filesystem (OVA or physical deployment)
 
 # Change these variables to match your envioronment.
 cluster_address="192.168.0.190"
