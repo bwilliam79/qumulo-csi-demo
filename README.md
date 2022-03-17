@@ -4,7 +4,7 @@
 
 **Prerequisites**
 - Client running OS X
-- VMware Fusion or Virtualbox installed
+- VMware Fusion or VirtualBox installed
 - A deployed Qumulo filesystem (either OVA or physical)
 
 Before running the scripts `qumulo-csi-demo-setup.sh` or `qumulo-csi-demo-destroy.sh` scripts, edit them and change the following variables to match your environment:
