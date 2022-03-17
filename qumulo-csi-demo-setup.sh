@@ -91,7 +91,7 @@ else
 fi
 
 # Install and configure Qumulo CSI driver
-printf "Installing Qumulo CSI driver...\n"
+printf "\nInstalling Qumulo CSI driver...\n"
 
 # Check if git repo has been cloned previously and delete if it exists
 if [ -d "./csi-driver-qumulo" ]
@@ -131,7 +131,6 @@ kubectl apply -f ./mysql-deployment.yaml
 
 until kubectl get pods | grep mysql 2>&1 > /dev/null
 do
-    printf "."
     sleep 2
 done
 
@@ -190,4 +189,4 @@ printf "kubectl exec -it $mysql_pod -- mysql -u root -p\n"
 
 printf "\n\033[33;33mThe default password is \"password\"\033[33;37m\n"
 
-printf "\nQumulo CSI driver setup complete."
+printf "\nQumulo CSI driver setup complete.\n"
