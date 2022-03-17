@@ -126,7 +126,12 @@ kubectl create secret generic cluster1-login --type="kubernetes.io/basic-auth" -
 kubectl create role access-secrets --verb=get,list,watch,update,create --resource=secrets --namespace kube-system
 kubectl create rolebinding --role=access-secrets default-to-secrets --serviceaccount=kube-system:csi-qumulo-controller-sa --namespace kube-system
 
+echo "\nSetting up storage class..."
 kubectl apply -f $path/example/storageclass-qumulo.yaml
-kubectl apply -f $path/example/dynamic-pvc.yaml
+# kubectl apply -f $path/example/dynamic-pvc.yaml
+
+echo "\nDeploying mysql..."
+kubectl apply -f ./mysql-pvc-qumulo.yaml
+kubectl apply -f ./mysql-deployment.yaml
 
 echo "\nQumulo CSI driver setup complete."

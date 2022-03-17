@@ -23,7 +23,8 @@ echo "NFS Export: $nfs_expor\n"
 
 echo "Removing PVC and quota from Qumulo filesystem...\n"
 
-kubectl delete -f $path/example/dynamic-pvc.yaml
+kubectl delete -f ./mysql-pvc-qumulo.yaml
+#kubectl delete -f $path/example/dynamic-pvc.yaml
 kubectl delete -f $path/example/storageclass-qumulo.yaml
 
 echo "\nDeleting minikube instance..."
