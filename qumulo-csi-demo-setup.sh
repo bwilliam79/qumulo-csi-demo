@@ -134,4 +134,9 @@ echo "\nDeploying mysql..."
 kubectl apply -f ./mysql-pvc-qumulo.yaml
 kubectl apply -f ./mysql-deployment.yaml
 
+mysql_pod=`kubectl get pods | grep mysql | cut -f1 -d ' '`
+echo "\n\033[33;32mAccess mysql prompt using the following command\033[33;37m"
+echo "kubectl exec -it $mysql_pod -- mysql -u root -p"
+echo "The default password is \"password\""
+
 echo "\nQumulo CSI driver setup complete."
