@@ -13,26 +13,26 @@ nfs_export="/k8s" # Keep this off the root of the filesystem for simplicity. Scr
 path="./csi-driver-qumulo/deploy/"
 
 # Print some info about the environment variables
-echo "Qumulo cluster address: $cluster_address"
-echo "Rest port: $rest_port"
-echo "Qumulo username: $username"
-echo "NFS Export: $nfs_export\n"
+printf "Qumulo cluster address: $cluster_address\n"
+printf "Rest port: $rest_port\n"
+printf "Qumulo username: $username\n"
+printf "NFS Export: $nfs_export\n\n"
 
-echo "Removing PVC and quota from Qumulo filesystem...\n"
+printf "Removing PVC and quota from Qumulo filesystem...\n\n"
 
 kubectl delete -f ./mysql-deployment.yaml
 kubectl delete -f ./mysql-pvc-qumulo.yaml
 #kubectl delete -f $path/example/dynamic-pvc.yaml
 kubectl delete -f $path/example/storageclass-qumulo.yaml
 
-echo "\nDeleting minikube instance..."
+printf "\n\nDeleting minikube instance...\n"
 minikube delete
 
 # Delete the NFS export and directory structure on Qumulo filesystem
-echo "\nDeleting NFS export on Qumulo..."
+printf "\n\nDeleting NFS export on Qumulo...\n"
 bearer_token=`curl -sk "https://$cluster_address:$rest_port/v1/session/login" -H "Content-Type: application/json" --data "{\"username\":\"$username\",\"password\":\"$password\"}"  | cut -f4 -d '"'`
 curl -ks -X DELETE "https://$cluster_address:$rest_port/v1/files/%2F${nfs_export:1}%2Fvolumes" -H "Authorization: Bearer $bearer_token" 2>&1 > /dev/null
 curl -ks -X DELETE "https://$cluster_address:$rest_port/v1/files/%2F${nfs_export:1}" -H "Authorization: Bearer $bearer_token" 2>&1 > /dev/null
 curl -ks -X DELETE "https://$cluster_address:$rest_port/v2/nfs/exports/%2F${nfs_export:1}" -H "Authorization: Bearer $bearer_token" 2>&1 > /dev/null
 
-echo "\nDone."
+printf "\n\nDone."

@@ -16,82 +16,82 @@ path="./csi-driver-qumulo/deploy/"
 test_db_repo="https://github.com/datacharmer/test_db"
 
 # Print some info about the environment variables
-echo "Qumulo cluster address: $cluster_address"
-echo "Rest port: $rest_port"
-echo "Qumulo username: $username"
-echo "NFS Export: $nfs_export"
-echo "Repo: $qumulo_csi_repo"
-echo "Replicas: $replicas\n"
+printf "Qumulo cluster address: $cluster_address\n"
+printf "Rest port: $rest_port\n"
+printf "Qumulo username: $username\n"
+printf "NFS Export: $nfs_export\n"
+printf "Repo: $qumulo_csi_repo\n"
+printf "Replicas: $replicas\n"
 
 # Create directory structure and NFS export on Qumulo filesystem
-echo "Creating NFS export on Qumulo..."
+printf "Creating NFS export on Qumulo...\n"
 bearer_token=`curl -sk "https://$cluster_address:$rest_port/v1/session/login" -H "Content-Type: application/json" --data "{\"username\":\"$username\",\"password\":\"$password\"}"  | cut -f4 -d '"'`
 curl -ks -X POST "https://$cluster_address:$rest_port/v1/files/%2F/entries/" -H "Content-Type: application/json" -H "Authorization: Bearer $bearer_token" --data "{\"name\":\"${nfs_export:1}\",\"action\":\"CREATE_DIRECTORY\"}" 2>&1 > /dev/null
 curl -ks -X POST "https://$cluster_address:$rest_port/v1/files/%2F${nfs_export:1}%2F/entries/" -H "Content-Type: application/json" -H "Authorization: Bearer $bearer_token" --data "{\"name\":\"volumes\",\"action\":\"CREATE_DIRECTORY\"}" 2>&1 > /dev/null
 curl -ks -X POST "https://$cluster_address:$rest_port/v2/nfs/exports/" -H "Content-Type: application/json" -H "Authorization: Bearer $bearer_token" --data "{\"export_path\":\"$nfs_export\",\"fs_path\":\"$nfs_export\",\"description\":\"Kubernetes CSI Demo\",\"restrictions\":[{\"read_only\":false,\"require_privileged_port\":false,\"host_restrictions\":[],\"user_mapping\":\"NFS_MAP_NONE\",\"map_to_user\":{\"id_type\":\"LOCAL_USER\",\"id_value\":\"0\"}}]}" 2>&1 > /dev/null
 
 # Check for minikube installation and automatically install if not deteceted
-echo "\nChecking for minikube installation..."
+printf "\n\nChecking for minikube installation...\n"
 if minikube version 2> /dev/null
 then
-    echo ""
+    printf ""
 else
-    echo "Installing minikube...\n"
-    echo "\033[33;33mPROVIDE SUDO PASSWORD IF/WHEN PROMPTED.\033[33;37m\n"
+    printf "Installing minikube...\n\n"
+    printf "\033[33;33mPROVIDE SUDO PASSWORD IF/WHEN PROMPTED.\033[33;37m\n\n"
     curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-amd64
     sudo install minikube-darwin-amd64 /usr/local/bin/minikube
 fi
 
 # Check minikube status and start if it is not running
-#echo "Checking minikube status..."
+#printf "Checking minikube status...\n"
 minikube status | grep "Running" && minikube_status=running || minikube_status=stopped
 
 if [[ "$minikube_status" == "stopped" ]]
 then
-    echo "Starting minikube..."
+    printf "Starting minikube...\n"
     minikube start
     minikube status | grep "Running" && minikube_status=running || minikube_status=stopped
 
     # Fail if minikube did not start for some reason
     if [[ "$minikube_status" == "stopped" ]]
     then
-        echo "minikube failed to start."
-        echo "Qumulo CSI driver setup failed."
+        printf "minikube failed to start.\n"
+        printf "Qumulo CSI driver setup failed.\n"
         exit -1
     fi
 fi
 
 # Check for git client and install if not detected
-echo "\nChecking for git client..."
+printf "\n\nChecking for git client...\n"
 if git --version 2> /dev/null
 then
-    echo ""
+    printf ""
 else
     # Use Homebrew to install git. If Homebrew is not installed, install it
-    echo "\nChecking for Homebrew client..."
+    printf "\n\nChecking for Homebrew client...\n"
     if brew --version 2> /dev/null
     then
-        echo ""
+        printf ""
     else
-        echo "Installing Homebrew..."
+        printf "Installing Homebrew...\n"
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        echo "Installing git..."
+        printf "Installing git...\n"
         brew install git
     fi
 fi
 
 # Check for kubectl and install if not detected
-echo "Checking for kubectl..."
+printf "Checking for kubectl...\n"
 if kubectl version 2> /dev/null
 then
-    echo ""
+    printf ""
 else
-    echo "Installing kubectl..."
+    printf "Installing kubectl...\n"
     brew install kubectl
 fi
 
 # Install and configure Qumulo CSI driver
-echo "Installing Qumulo CSI driver..."
+printf "Installing Qumulo CSI driver...\n"
 
 # Check if git repo has been cloned previously and delete if it exists
 if [ -d "./csi-driver-qumulo" ]
@@ -102,30 +102,30 @@ fi
 # Clone latest Qumulo CSI driver from github
 git clone $qumulo_csi_repo
 
-echo "\nConfiguring Qumulo CSI driver."
-echo "\033[33;33mErrors about configurations already existing can be ignored.\033[33;37m"
+printf "\n\nConfiguring Qumulo CSI driver.\n"
+printf "\033[33;33mErrors about configurations already existing can be ignored.\033[33;37m\n"
 
 # Deploy Qumulo CSI driver components
-sed -i '' "s/replicas: 2/replicas: $replicas/g" $path/csi-qumulo-controller.yaml
+sed -i.bak "s/replicas: 2/replicas: $replicas/g" $path/csi-qumulo-controller.yaml
 kubectl create -f $path/rbac-csi-qumulo-controller.yaml
 kubectl create -f $path/csi-qumulo-driverinfo.yaml
 kubectl create -f $path/csi-qumulo-controller.yaml
 kubectl create -f $path/csi-qumulo-node.yaml
 
 # Apply configuration for current environment
-sed -i '' "s/10.116.10.177/$cluster_address/g" $path/example/storageclass-qumulo.yaml
-sed -i '' "s/\/regions\/4234/\\$nfs_export/g" $path/example/storageclass-qumulo.yaml
-sed -i '' "s/\/some\/export/\\$nfs_export/g" $path/example/storageclass-qumulo.yaml
+sed -i.bak "s/10.116.10.177/$cluster_address/g" $path/example/storageclass-qumulo.yaml
+sed -i.bak "s/\/regions\/4234/\\$nfs_export/g" $path/example/storageclass-qumulo.yaml
+sed -i.bak "s/\/some\/export/\\$nfs_export/g" $path/example/storageclass-qumulo.yaml
 
 kubectl create secret generic cluster1-login --type="kubernetes.io/basic-auth" --from-literal=username=$username --from-literal=password=$password --namespace=kube-system
 kubectl create role access-secrets --verb=get,list,watch,update,create --resource=secrets --namespace kube-system
 kubectl create rolebinding --role=access-secrets default-to-secrets --serviceaccount=kube-system:csi-qumulo-controller-sa --namespace kube-system
 
-echo "\nSetting up storage class..."
+printf "\n\nSetting up storage class...\n"
 kubectl apply -f $path/example/storageclass-qumulo.yaml
 # kubectl apply -f $path/example/dynamic-pvc.yaml
 
-echo "\nDeploying mysql..."
+printf "\n\nDeploying mysql...\n"
 kubectl apply -f ./mysql-pvc-qumulo.yaml
 kubectl apply -f ./mysql-deployment.yaml
 
@@ -135,14 +135,14 @@ sleep 5
 # Get the pod name for mysql deployment
 mysql_pod=`kubectl get pods | grep mysql | cut -f1 -d ' '`
 
-echo "\nWaiting for mysql pod deployment to complete..."
+printf "\n\nWaiting for mysql pod deployment to complete...\n"
 until kubectl get pods | grep mysql | grep -i running 2>&1 > /dev/null
 do
     printf "."
     sleep 2
 done
 
-echo "\n\nmysql deployed, waiting for database to initialize..."
+printf "\n\n\nmysql deployed, waiting for database to initialize...\n"
 until kubectl logs $mysql_pod | grep -i 'mysqld: ready for connections' 2>&1 > /dev/null
 do
     printf "."
@@ -152,18 +152,18 @@ do
 
     if [[ "mysql_deploy_failed" == true ]]
     then
-        echo "\nmysql failed to initialize correctly..."
+        printf "\n\nmysql failed to initialize correctly...\n"
         ./qumulo-csi-demo-destroy.sh
-        echo "\nRetry deployment."
-        exit
+        printf "\n\nRetry deployment.\n"
+        exit -1
     fi
 done
 
 # Pull test DB from github and populate mysql database with it
-echo "\n\nPopulating mysql database. This process will take a while..."
-echo "\n    *****************************************************"
-echo "    **** \033[33;32mNOW IS A GOOD TIME TO LOOK AT THE QUMULO UI\033[33;37m ****    "
-echo "    *****************************************************\n"
+printf "\n\n\nPopulating mysql database. This process will take a while...\n"
+printf "\n\n    *****************************************************\n"
+printf "    **** \033[33;32mNOW IS A GOOD TIME TO LOOK AT THE QUMULO UI\033[33;37m ****    \n"
+printf "    *****************************************************\n\n"
 
 # Check if git repo has been cloned previously and delete if it exists
 if [ -d "./test_db" ]
@@ -179,10 +179,10 @@ kubectl cp ./test_db $mysql_pod:/
 
 kubectl exec $mysql_pod -- mysql -u root --password=password -A -e "source /test_db/employees.sql" 2>&1 > /dev/null
 
-echo "\n\033[33;32mAccess mysql prompt using the following command:\033[33;37m\n"
+printf "\n\n\033[33;32mAccess mysql prompt using the following command:\033[33;37m\n\n"
 
-echo "kubectl exec -it $mysql_pod -- mysql -u root -p"
+printf "kubectl exec -it $mysql_pod -- mysql -u root -p\n"
 
-echo "\n\033[33;33mThe default password is \"password\"\033[33;37m"
+printf "\n\n\033[33;33mThe default password is \"password\"\033[33;37m\n"
 
-echo "\nQumulo CSI driver setup complete."
+printf "\n\nQumulo CSI driver setup complete."
