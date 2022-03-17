@@ -1,20 +1,22 @@
 # Qumulo CSI Demo
 
-These scripts have only been tested on OS X and depend on VMware Fusion and an existing Qumulo filesystem.
+**These scripts have only been tested on OS X and depend on VMware Fusion and an existing Qumulo filesystem.**
 
-Prerequisites
-Client running OS X
-VMware Fusion
-A deployed Qumulo filesystem (either OVA or physical)
+######Prerequisites
+- Client running OS X
+- VMware Fusion
+- A deployed Qumulo filesystem (either OVA or physical)
 
 Before running the scripts qumulo-csi-demo-setup or qumulo-csi-demo-destroy scripts, edit them and change the following variables to match your environment:
+```
 cluster_address="192.168.0.190"
 rest_port="8000"
 username="admin"
 password="Admin123"
 nfs_export="/k8s"
+```
 
-qumulo-csi-demo-setup.sh
+######qumulo-csi-demo-setup.sh
 This script performs the folloing tasks
 1. Installs the following components if they are not present:
     - minikube
@@ -28,7 +30,7 @@ This script performs the folloing tasks
 6. Deploy a mysql instance on Kubernetes using a persistent volume from Qumulo
 7. Populate the mysql database with test data.
 
-qumulo-csi-demo-destroy.sh
+######qumulo-csi-demo-destroy.sh
 This script performs teh following tasks
 1. Deletes the mysql data on the Qumulo filesystem
 2. Deletes the Kubernetes deployment in minikube
