@@ -31,7 +31,7 @@ curl -ks -X POST "https://$cluster_address:$rest_port/v1/files/%2F${nfs_export:1
 curl -ks -X POST "https://$cluster_address:$rest_port/v2/nfs/exports/" -H "Content-Type: application/json" -H "Authorization: Bearer $bearer_token" --data "{\"export_path\":\"$nfs_export\",\"fs_path\":\"$nfs_export\",\"description\":\"Kubernetes CSI Demo\",\"restrictions\":[{\"read_only\":false,\"require_privileged_port\":false,\"host_restrictions\":[],\"user_mapping\":\"NFS_MAP_NONE\",\"map_to_user\":{\"id_type\":\"LOCAL_USER\",\"id_value\":\"0\"}}]}" 2>&1 > /dev/null
 
 # Check for minikube installation and automatically install if not deteceted
-printf "\n\nChecking for minikube installation...\n"
+printf "\nChecking for minikube installation...\n"
 if minikube version 2> /dev/null
 then
     printf ""
@@ -62,13 +62,13 @@ then
 fi
 
 # Check for git client and install if not detected
-printf "\n\nChecking for git client...\n"
+printf "\nChecking for git client...\n"
 if git --version 2> /dev/null
 then
     printf ""
 else
     # Use Homebrew to install git. If Homebrew is not installed, install it
-    printf "\n\nChecking for Homebrew client...\n"
+    printf "\nChecking for Homebrew client...\n"
     if brew --version 2> /dev/null
     then
         printf ""
@@ -102,7 +102,7 @@ fi
 # Clone latest Qumulo CSI driver from github
 git clone $qumulo_csi_repo
 
-printf "\n\nConfiguring Qumulo CSI driver.\n"
+printf "\nConfiguring Qumulo CSI driver.\n"
 printf "\033[33;33mErrors about configurations already existing can be ignored.\033[33;37m\n"
 
 # Deploy Qumulo CSI driver components
@@ -121,28 +121,30 @@ kubectl create secret generic cluster1-login --type="kubernetes.io/basic-auth" -
 kubectl create role access-secrets --verb=get,list,watch,update,create --resource=secrets --namespace kube-system
 kubectl create rolebinding --role=access-secrets default-to-secrets --serviceaccount=kube-system:csi-qumulo-controller-sa --namespace kube-system
 
-printf "\n\nSetting up storage class...\n"
+printf "\nSetting up storage class...\n"
 kubectl apply -f $path/example/storageclass-qumulo.yaml
 # kubectl apply -f $path/example/dynamic-pvc.yaml
 
-printf "\n\nDeploying mysql...\n"
+printf "\nDeploying mysql...\n"
 kubectl apply -f ./mysql-pvc-qumulo.yaml
 kubectl apply -f ./mysql-deployment.yaml
 
 # Wait a few seconds for mysql pod to deploy
-sleep 5
+sleep 10
 
 # Get the pod name for mysql deployment
 mysql_pod=`kubectl get pods | grep mysql | cut -f1 -d ' '`
 
-printf "\n\nWaiting for mysql pod deployment to complete...\n"
+printf "$mysql_pod\n"
+
+printf "\nWaiting for mysql pod deployment to complete...\n"
 until kubectl get pods | grep mysql | grep -i running 2>&1 > /dev/null
 do
     printf "."
     sleep 2
 done
 
-printf "\n\n\nmysql deployed, waiting for database to initialize...\n"
+printf "\n\nmysql deployed, waiting for database to initialize...\n"
 until kubectl logs $mysql_pod | grep -i 'mysqld: ready for connections' 2>&1 > /dev/null
 do
     printf "."
@@ -160,8 +162,8 @@ do
 done
 
 # Pull test DB from github and populate mysql database with it
-printf "\n\n\nPopulating mysql database. This process will take a while...\n"
-printf "\n\n    *****************************************************\n"
+printf "\n\nPopulating mysql database. This process will take a while...\n"
+printf "\n    *****************************************************\n"
 printf "    **** \033[33;32mNOW IS A GOOD TIME TO LOOK AT THE QUMULO UI\033[33;37m ****    \n"
 printf "    *****************************************************\n\n"
 
@@ -179,10 +181,10 @@ kubectl cp ./test_db $mysql_pod:/
 
 kubectl exec $mysql_pod -- mysql -u root --password=password -A -e "source /test_db/employees.sql" 2>&1 > /dev/null
 
-printf "\n\n\033[33;32mAccess mysql prompt using the following command:\033[33;37m\n\n"
+printf "\n\033[33;32mAccess mysql prompt using the following command:\033[33;37m\n\n"
 
 printf "kubectl exec -it $mysql_pod -- mysql -u root -p\n"
 
-printf "\n\n\033[33;33mThe default password is \"password\"\033[33;37m\n"
+printf "\n\033[33;33mThe default password is \"password\"\033[33;37m\n"
 
-printf "\n\nQumulo CSI driver setup complete."
+printf "\nQumulo CSI driver setup complete."
