@@ -16,15 +16,16 @@ nfs_export="/k8s" # Keep this off the root of the filesystem for simplicity. Scr
 
 # These variables should be left alone for now
 replicas="1"
-repo="https://github.com/ScottUrban/csi-driver-qumulo"
+qumulo_csi_repo="https://github.com/ScottUrban/csi-driver-qumulo"
 path="./csi-driver-qumulo/deploy/"
+test_db_repo="https://github.com/datacharmer/test_db"
 
 # Print some info about the environment variables
 echo "Qumulo cluster address: $cluster_address"
 echo "Rest port: $rest_port"
 echo "Qumulo username: $username"
 echo "NFS Export: $nfs_export"
-echo "Repo: $repo"
+echo "Repo: $qumulo_csi_repo"
 echo "Replicas: $replicas\n"
 
 # Create directory structure and NFS export on Qumulo filesystem
@@ -35,7 +36,7 @@ curl -ks -X POST "https://$cluster_address:$rest_port/v1/files/%2F${nfs_export:1
 curl -ks -X POST "https://$cluster_address:$rest_port/v2/nfs/exports/" -H "Content-Type: application/json" -H "Authorization: Bearer $bearer_token" --data "{\"export_path\":\"$nfs_export\",\"fs_path\":\"$nfs_export\",\"description\":\"Kubernetes CSI Demo\",\"restrictions\":[{\"read_only\":false,\"require_privileged_port\":false,\"host_restrictions\":[],\"user_mapping\":\"NFS_MAP_NONE\",\"map_to_user\":{\"id_type\":\"LOCAL_USER\",\"id_value\":\"0\"}}]}" 2>&1 > /dev/null
 
 # Check for minikube installation and automatically install if not deteceted
-echo "\nChecking for minikube installation...",
+echo "\nChecking for minikube installation..."
 if minikube version 2> /dev/null
 then
     echo ""
@@ -47,7 +48,7 @@ else
 fi
 
 # Check minikube status and start if it is not running
-echo "Checking minikube status..."
+#echo "Checking minikube status..."
 minikube status | grep "Running" && minikube_status=running || minikube_status=stopped
 
 if [[ "$minikube_status" == "stopped" ]]
@@ -100,12 +101,11 @@ echo "Installing Qumulo CSI driver..."
 # Check if git repo has been cloned previously and delete if it exists
 if [ -d "./csi-driver-qumulo" ]
 then
-    echo "Deleting previously cloned repo..."
     rm -rf ./csi-driver-qumulo
 fi
 
 # Clone latest Qumulo CSI driver from github
-git clone $repo
+git clone $qumulo_csi_repo
 
 echo "\nConfiguring Qumulo CSI driver."
 echo "\033[33;33mErrors about configurations already existing can be ignored.\033[33;37m"
@@ -133,15 +133,61 @@ kubectl apply -f $path/example/storageclass-qumulo.yaml
 echo "\nDeploying mysql..."
 kubectl apply -f ./mysql-pvc-qumulo.yaml
 kubectl apply -f ./mysql-deployment.yaml
+
+# Wait a few seconds for mysql pod to deploy
 sleep 5
 
+# Get the pod name for mysql deployment
 mysql_pod=`kubectl get pods | grep mysql | cut -f1 -d ' '`
+
+echo "\nWaiting for mysql pod deployment to complete..."
+until kubectl get pods | grep mysql | grep -i running 2>&1 > /dev/null
+do
+    printf "."
+    sleep 2
+done
+
+echo "\n\nmysql deployed, waiting for database to initialize..."
+until kubectl logs $mysql_pod | grep -i 'mysqld: ready for connections' 2>&1 > /dev/null
+do
+    printf "."
+    sleep 2
+
+    kubectl get pods | grep mysql | grep -i 'CrashLoopBackOff' && mysql_deploy_failed= true
+
+    if [[ "mysql_deploy_failed" == true ]]
+    then
+        echo "\nmysql failed to initialize correctly..."
+        ./qumulo-csi-demo-destroy.sh
+        echo "\nRetry deployment."
+        exit
+    fi
+done
+
+# Pull test DB from github and populate mysql database with it
+echo "\n\nPopulating mysql database. This process will take a while..."
+echo "\n    *****************************************************"
+echo "    **** \033[33;32mNOW IS A GOOD TIME TO LOOK AT THE QUMULO UI\033[33;37m ****    "
+echo "    *****************************************************\n"
+
+# Check if git repo has been cloned previously and delete if it exists
+if [ -d "./test_db" ]
+then
+    rm -rf ./test_db
+fi
+
+git clone $test_db_repo
+# Correct path to .dump files in .sql imports
+sed -i '' "s/source /source \/test_db\//g" ./test_db/*.sql
+# Copy sql dumps into container for importing
+kubectl cp ./test_db $mysql_pod:/
+
+kubectl exec $mysql_pod -- mysql -u root --password=password -A -e "source /test_db/employees.sql" 2>&1 > /dev/null
 
 echo "\n\033[33;32mAccess mysql prompt using the following command:\033[33;37m\n"
 
 echo "kubectl exec -it $mysql_pod -- mysql -u root -p"
 
 echo "\n\033[33;33mThe default password is \"password\"\033[33;37m"
-echo "\033[33;33mNOTE: It could take a few minutes before the mysql service is running\033[33;37m"
 
 echo "\nQumulo CSI driver setup complete."

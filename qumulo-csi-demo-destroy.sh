@@ -19,7 +19,7 @@ path="./csi-driver-qumulo/deploy/"
 echo "Qumulo cluster address: $cluster_address"
 echo "Rest port: $rest_port"
 echo "Qumulo username: $username"
-echo "NFS Export: $nfs_expor\n"
+echo "NFS Export: $nfs_export\n"
 
 echo "Removing PVC and quota from Qumulo filesystem...\n"
 
