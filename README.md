@@ -15,7 +15,6 @@ username="admin"
 password="Admin123"
 nfs_export="/k8s"
 ```
-
 ###### qumulo-csi-demo-setup.sh
 This script performs the folloing tasks
 1. Installs the following components if they are not present:
