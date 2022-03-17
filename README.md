@@ -1,8 +1,8 @@
 # Qumulo CSI Demo
 
-**These scripts have only been tested on OS X and depend on VMware Fusion and an existing Qumulo filesystem.**
+###### These scripts have only been tested on OS X and depend on VMware Fusion and an existing Qumulo filesystem.
 
-###### Prerequisites
+**Prerequisites**
 - Client running OS X
 - VMware Fusion
 - A deployed Qumulo filesystem (either OVA or physical)
