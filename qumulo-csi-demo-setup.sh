@@ -88,13 +88,16 @@ if git --version 2> /dev/null
 then
     printf ""
 else
+    printf "Installing git client...\n\n"
+    printf "\033[33;33mPROVIDE SUDO PASSWORD IF/WHEN PROMPTED.\033[33;37m\n\n"
     if [[ "$os_type" == "Mac" ]]
     then
         # Use Homebrew to install git. If Homebrew is not installed, install it
         printf "\nChecking for Homebrew client...\n"
         if brew --version 2> /dev/null
         then
-            printf ""
+            printf "Installing git...\n"
+            brew install git
         else
             printf "Installing Homebrew...\n"
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -113,9 +116,10 @@ if kubectl version 2> /dev/null
 then
     printf ""
 else
+    printf "Installing kubectl...\n\n"
+    printf "\033[33;33mPROVIDE SUDO PASSWORD IF/WHEN PROMPTED.\033[33;37m\n\n"
     if [[ "$os_type" == "Mac" ]]
     then
-        printf "Installing kubectl...\n"
         brew install kubectl
     elif [[ "$os_type" == "Centos7" ]]
     then
