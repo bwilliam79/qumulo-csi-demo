@@ -5,8 +5,8 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - port: 8080
-    targetPort: 8080
+  - port: 80
+    targetPort: 80
     protocol: TCP
     name: http
   selector:
@@ -31,7 +31,7 @@ spec:
       - image: nginx:latest
         name: nginx
         ports:
-        - containerPort: 8080
+        - containerPort: 80
           name: nginx
         volumeMounts:
         - name: nginx-persistent-storage
