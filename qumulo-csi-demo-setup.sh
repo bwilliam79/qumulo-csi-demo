@@ -221,10 +221,21 @@ kubectl cp ./test_db $mysql_pod:/
 
 kubectl exec $mysql_pod -- mysql -u root --password=password -A -e "source /test_db/employees.sql" 2>&1 > /dev/null
 
+printf "\nDeploying nginx...\n"
+kubectl apply -f ./nginx-pvc-qumulo.yaml
+kubectl apply -f ./nginx-deployment.yaml
+
+until kubectl get pods | grep mysql 2>&1 > /dev/null
+do
+    sleep 2
+done
+
 printf "\n\033[33;32mAccess mysql prompt using the following command:\033[33;37m\n\n"
 
 printf "kubectl exec -it $mysql_pod -- mysql -u root -p\n"
 
 printf "\n\033[33;33mThe default password is \"password\"\033[33;37m\n"
+
+printf "\nWeb server can be accessed at <IP>\n"
 
 printf "\nQumulo CSI driver setup complete.\n"

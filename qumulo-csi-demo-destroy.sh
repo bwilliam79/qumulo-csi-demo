@@ -18,10 +18,12 @@ printf "Rest port: $rest_port\n"
 printf "Qumulo username: $username\n"
 printf "NFS Export: $nfs_export\n\n"
 
-printf "Removing PVC and quota from Qumulo filesystem...\n\n"
+printf "Removing PVCs and quotas from Qumulo filesystem...\n\n"
 
 kubectl delete -f ./mysql-deployment.yaml
 kubectl delete -f ./mysql-pvc-qumulo.yaml
+kubectl delete -f ./nginx-deployment.yaml
+kubectl delete -f ./nginx-pvc-qumulo.yaml
 #kubectl delete -f $path/example/dynamic-pvc.yaml
 kubectl delete -f $path/example/storageclass-qumulo.yaml
 

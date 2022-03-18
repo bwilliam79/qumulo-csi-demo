@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-pvc
+spec:
+  storageClassName: cluster1
+  accessModes:
+    - ReadOnly
+  resources:
+    requests:
+      storage: 5Gi
