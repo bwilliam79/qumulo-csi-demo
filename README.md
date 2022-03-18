@@ -1,10 +1,10 @@
 # Qumulo CSI Demo
 
-###### These scripts have only been tested on OS X
+###### These scripts have only been tested on OS X and CentOS 7
 
 **Prerequisites**
-- Client running OS X
-- VMware Fusion or VirtualBox installed
+- Client running OS X or CentOS 7
+- VMware Fusion, VirtualBox, or Docker Engine installed (docker must be user runnable)
 - A deployed Qumulo filesystem (either OVA or physical)
 
 Before running the scripts `qumulo-csi-demo-setup.sh` or `qumulo-csi-demo-destroy.sh` scripts, edit them and change the following variables to match your environment:
