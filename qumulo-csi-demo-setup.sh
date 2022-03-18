@@ -236,6 +236,6 @@ printf "kubectl exec -it $mysql_pod -- mysql -u root -p\n"
 
 printf "\n\033[33;33mThe default password is \"password\"\033[33;37m\n"
 
-printf "\nWeb server can be accessed at <IP>\n"
+#printf "\nWeb server can be accessed at <IP>\n"
 
 printf "\nQumulo CSI driver setup complete.\n"
