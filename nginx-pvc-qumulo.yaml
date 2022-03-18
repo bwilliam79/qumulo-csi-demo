@@ -5,7 +5,7 @@ metadata:
 spec:
   storageClassName: cluster1
   accessModes:
-    - ReadOnly
+    - ReadOnlyMany
   resources:
     requests:
       storage: 5Gi
