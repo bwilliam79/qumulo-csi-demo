@@ -190,7 +190,7 @@ do
     printf "."
     sleep 2
 
-    kubectl get pods | grep mysql | grep -i CrashLoopBackOff && mysql_deploy_failed= true
+    kubectl get pods | grep mysql | grep -i CrashLoopBackOff && mysql_deploy_failed=true
 
     if [[ "mysql_deploy_failed" == true ]]
     then
