@@ -175,7 +175,7 @@ done
 # Get the pod name for mysql deployment
 mysql_pod=`kubectl get pods | grep mysql | cut -f1 -d ' '`
 
-printf "$mysql_pod\n"
+printf "mysql pod name: $mysql_pod\n"
 
 printf "\nWaiting for mysql pod deployment to complete...\n"
 until kubectl get pods | grep mysql | grep -i running 2>&1 > /dev/null
