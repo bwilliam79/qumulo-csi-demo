@@ -19,17 +19,12 @@ test_db_repo="https://github.com/datacharmer/test_db"
 uname=`uname -a`
 if [[ "$uname" == *"el7"* ]]
 then
-    os_type="centos7"
+    os_type="Centos7"
 elif [[ "$uname" == *"Darwin"* ]]
 then
-    os_type="osx"
+    os_type="Mac"
 else
-    os_type="unsupported"
-fi
-
-if [[ "$os_type" == "unsupported" ]]
-then
-    printf "Unsupported OS type detected: $os_type\n"
+    printf "Unsupported OS type detected: $uname\n"
     exit -1
 fi
 
@@ -57,8 +52,15 @@ then
 else
     printf "Installing minikube...\n\n"
     printf "\033[33;33mPROVIDE SUDO PASSWORD IF/WHEN PROMPTED.\033[33;37m\n\n"
-    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-amd64
-    sudo install minikube-darwin-amd64 /usr/local/bin/minikube
+    if [[ "$os_type" == "Mac" ]]
+    then
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-amd64
+        sudo install minikube-darwin-amd64 /usr/local/bin/minikube
+    elfi [[ "$os_type" == "Centos7" ]]
+    then
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube
+    fi
 fi
 
 # Check minikube status and start if it is not running
@@ -86,16 +88,22 @@ if git --version 2> /dev/null
 then
     printf ""
 else
-    # Use Homebrew to install git. If Homebrew is not installed, install it
-    printf "\nChecking for Homebrew client...\n"
-    if brew --version 2> /dev/null
+    if [[ "$os_type" == "Mac" ]]
     then
-        printf ""
-    else
-        printf "Installing Homebrew...\n"
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        printf "Installing git...\n"
-        brew install git
+        # Use Homebrew to install git. If Homebrew is not installed, install it
+        printf "\nChecking for Homebrew client...\n"
+        if brew --version 2> /dev/null
+        then
+            printf ""
+        else
+            printf "Installing Homebrew...\n"
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            printf "Installing git...\n"
+            brew install git
+        fi
+    elif [[ "$os_type" == "Centos7" ]]
+    then
+        sudo yum -y install git
     fi
 fi
 
@@ -105,8 +113,15 @@ if kubectl version 2> /dev/null
 then
     printf ""
 else
-    printf "Installing kubectl...\n"
-    brew install kubectl
+    if [[ "$os_type" == "Mac" ]]
+    then
+        printf "Installing kubectl...\n"
+        brew install kubectl
+    elif [[ "$os_type" == "Centos7" ]]
+    then
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    fi
 fi
 
 # Install and configure Qumulo CSI driver
