@@ -192,9 +192,7 @@ do
 
     kubectl get pods | grep mysql | grep -i 'CrashLoopBackOff' && mysql_deploy_failed=true
 
-    printf "mysql deployment status: $mysql_deploy_failed\n"
-
-    if [[ "mysql_deploy_failed" == "true" ]]
+    if [[ "$mysql_deploy_failed" == "true" ]]
     then
         printf "\n\nmysql failed to initialize correctly...\n"
         ./qumulo-csi-demo-destroy.sh
