@@ -192,7 +192,7 @@ do
 
     kubectl get pods | grep mysql | grep -i 'CrashLoopBackOff' && mysql_deploy_failed=true
 
-    printf "mysql deployment status: $mysql_deploy_failed"
+    printf "mysql deployment status: $mysql_deploy_failed\n"
 
     if [[ "mysql_deploy_failed" == "true" ]]
     then
