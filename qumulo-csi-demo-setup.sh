@@ -178,7 +178,7 @@ mysql_pod=`kubectl get pods | grep mysql | cut -f1 -d ' '`
 printf "mysql pod name: $mysql_pod\n"
 
 printf "\nWaiting for mysql pod deployment to complete...\n"
-until kubectl get pods | grep mysql | grep -i running 2>&1 > /dev/null
+until kubectl get pods | grep mysql | grep -i 'running' 2>&1 > /dev/null
 do
     printf "."
     sleep 2
@@ -190,13 +190,13 @@ do
     printf "."
     sleep 2
 
-    kubectl get pods | grep mysql | grep -i 'CrashLoopBackOff' && mysql_deploy_failed=true
+    kubectl get pods | grep mysql | grep -i 'CrashLoopBackOff' && mysql_deploy_failed=true 2>&1 > /dev/null
 
     if [[ "$mysql_deploy_failed" == "true" ]]
     then
-        printf "\n\nmysql failed to initialize correctly...\n"
+        printf "\nmysql failed to initialize correctly...\n\n"
         ./qumulo-csi-demo-destroy.sh
-        printf "\n\nRetry deployment.\n"
+        printf "\nRetry deployment.\n"
         exit -1
     fi
 done
