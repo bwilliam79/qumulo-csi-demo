@@ -15,13 +15,32 @@ qumulo_csi_repo="https://github.com/ScottUrban/csi-driver-qumulo"
 path="./csi-driver-qumulo/deploy/"
 test_db_repo="https://github.com/datacharmer/test_db"
 
+# Determine OS type. Currently, CentOS/RHEL 7 and OS X should work
+uname=`uname -a`
+if [[ "$uname" == *"el7"* ]]
+then
+    os_type="centos7"
+elif [[ "$uname" == *"Darwin"* ]]
+then
+    os_type="osx"
+else
+    os_type="unsupported"
+fi
+
+if [[ "$os_type" == "unsupported" ]]
+then
+    printf "Unsupported OS type detected: $os_type\n"
+    exit -1
+fi
+
 # Print some info about the environment variables
+printf "OS: $os_type\n"
 printf "Qumulo cluster address: $cluster_address\n"
 printf "Rest port: $rest_port\n"
 printf "Qumulo username: $username\n"
 printf "NFS Export: $nfs_export\n"
 printf "Repo: $qumulo_csi_repo\n"
-printf "Replicas: $replicas\n"
+printf "Replicas: $replicas\n\n"
 
 # Create directory structure and NFS export on Qumulo filesystem
 printf "Creating NFS export on Qumulo...\n"
@@ -152,7 +171,7 @@ do
     printf "."
     sleep 2
 
-    kubectl get pods | grep mysql | grep -i 'CrashLoopBackOff' && mysql_deploy_failed= true
+    kubectl get pods | grep mysql | grep -i CrashLoopBackOff && mysql_deploy_failed= true
 
     if [[ "mysql_deploy_failed" == true ]]
     then
@@ -164,7 +183,7 @@ do
 done
 
 # Pull test DB from github and populate mysql database with it
-printf "\n\nPopulating mysql database. This process will take a while...\n"
+printf "\n\nPopulating mysql database. This process may take a while...\n"
 printf "\n    *****************************************************\n"
 printf "    **** \033[33;32mNOW IS A GOOD TIME TO LOOK AT THE QUMULO UI\033[33;37m ****    \n"
 printf "    *****************************************************\n\n"
