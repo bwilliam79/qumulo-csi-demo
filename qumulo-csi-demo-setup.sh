@@ -190,9 +190,9 @@ do
     printf "."
     sleep 2
 
-    kubectl get pods | grep mysql | grep -i CrashLoopBackOff && mysql_deploy_failed=true
+    kubectl get pods | grep mysql | grep -i 'CrashLoopBackOff' && mysql_deploy_failed=true
 
-    if [[ "mysql_deploy_failed" == true ]]
+    if [[ "mysql_deploy_failed" == "true" ]]
     then
         printf "\n\nmysql failed to initialize correctly...\n"
         ./qumulo-csi-demo-destroy.sh
