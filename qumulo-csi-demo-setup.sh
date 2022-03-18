@@ -169,7 +169,6 @@ kubectl apply -f ./mysql-deployment.yaml
 
 until kubectl get pods | grep 'mysql' 2>&1 > /dev/null
 do
-    printf "."
     sleep 2
 done
 
