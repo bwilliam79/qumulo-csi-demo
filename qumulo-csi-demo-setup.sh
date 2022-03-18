@@ -56,7 +56,7 @@ else
     then
         curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-amd64
         sudo install minikube-darwin-amd64 /usr/local/bin/minikube
-    elfi [[ "$os_type" == "Centos7" ]]
+    elif [[ "$os_type" == "Centos7" ]]
     then
         curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
         sudo install minikube-linux-amd64 /usr/local/bin/minikube
