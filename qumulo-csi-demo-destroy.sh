@@ -37,7 +37,7 @@ minikube delete
 
 # Delete the NFS export and directory structure on Qumulo filesystem
 printf "\nDeleting NFS export on Qumulo...\n"
-bearer_token=`curl -sk "https://$cluster_address:$rest_port/v1/session/login" -H "Content-Type: application/json" --data "{\"username\":\"$username\",\"password\":\"$password\"}"  | cut -f4 -d '"'`
+bearer_token=`curl -ks "https://$cluster_address:$rest_port/v1/session/login" -H "Content-Type: application/json" --data "{\"username\":\"$username\",\"password\":\"$password\"}"  | cut -f4 -d '"'`
 tree_id=`curl -ks -X GET "https://$cluster_address:$rest_port/v1/files/%2F${nfs_export:1}/info/attributes" -H "Authorization: Bearer $bearer_token" | grep -Eo '"id": .*?[^\\]"' | cut -f4 -d '"'`
 curl -ks -X POST "https://$cluster_address:$rest_port/v1/tree-delete/jobs/" -H "Content-Type: application/json" -H "Authorization: Bearer $bearer_token" --data "{\"id\":\"$tree_id\"}" 2>&1 > /dev/null
 curl -ks -X DELETE "https://$cluster_address:$rest_port/v2/nfs/exports/%2F${nfs_export:1}" -H "Authorization: Bearer $bearer_token" 2>&1 > /dev/null
