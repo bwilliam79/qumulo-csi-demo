@@ -35,6 +35,7 @@ This script performs teh following tasks
 2. Deletes the Kubernetes deployment in minikube
 
 **Demoing**
+
 If everything deployed correctly, you should see instructions printed to the console for accessing the mysql instance and the web server which were deployed. You can determine the path of the pvc for the web server using the following command:
 
 ```
