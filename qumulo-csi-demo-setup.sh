@@ -247,7 +247,6 @@ kubectl cp ./html/ $nginx_pod:/usr/share/nginx/
 kubectl exec $nginx_pod -- chmod 666 /usr/share/nginx/html/index.html
 
 printf "\n\nSetting up port forward for nginx service...\n"
-printf "\033[33;33mPROVIDE SUDO PASSWORD IF/WHEN PROMPTED.\033[33;37m\n\n"
 
 if [[ "$os_type" == "Mac" ]]
 then
@@ -260,6 +259,7 @@ then
     systemctl status firewalld | grep -i "running" && firewalld_status="running" || firewalld_status="stopped"
     if [[ "$firewalld_status" == "running" ]]
     then
+        printf "\033[33;33mPROVIDE SUDO PASSWORD IF/WHEN PROMPTED.\033[33;37m\n"
         sudo firewall-cmd --zone=public --add-port=8080/tcp
     fi
 fi
