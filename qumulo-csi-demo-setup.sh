@@ -240,7 +240,7 @@ done
 # Copy html onto nginx pvc via nginx container
 kubectl cp ./html/ $nginx_pod:/usr/share/nginx/
 
-printf "\nSetting up port forward for nginx service...\n"
+printf "\n\nSetting up port forward for nginx service...\n"
 printf "\033[33;33mPROVIDE SUDO PASSWORD IF/WHEN PROMPTED.\033[33;37m\n\n"
 
 if [[ "$os_type" == "Mac" ]]
@@ -266,6 +266,6 @@ printf "kubectl exec -it $mysql_pod -- mysql -u root -p\n"
 
 printf "\n\033[33;33mThe default password is \"password\"\033[33;37m\n"
 
-printf "\nWeb server can be accessed at http://$ip_address:8080\n"
+printf "\n\033[33;32mWeb server can be accessed at:\033[33;37m http://$ip_address:8080\n"
 
 printf "\nQumulo CSI driver setup complete.\n"
