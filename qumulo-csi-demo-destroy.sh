@@ -9,6 +9,11 @@ username="admin" # This user must have permissions to create directories on the 
 password="Admin123"
 nfs_export="/k8s" # Keep this off the root of the filesystem for simplicity. Script mostly likely won't work otherwise.
 
+printf "\033[33;33m*******************************************************************************\n"
+printf "WARNING: THIS SCIPT WILL DELETE THE $nfs_export DIRECTORY FROM YOUR QUMULO FILESYSTEM!!!\n"
+printf "*******************************************************************************\033[33;33m\n"
+read -p "Type \"DELETE\" to continue: " confirm || $confirm == "DELETE" || exit 1
+
 # This variable should be left alone for now
 path="./csi-driver-qumulo/deploy/"
 
@@ -33,9 +38,8 @@ minikube delete
 # Delete the NFS export and directory structure on Qumulo filesystem
 printf "\nDeleting NFS export on Qumulo...\n"
 bearer_token=`curl -sk "https://$cluster_address:$rest_port/v1/session/login" -H "Content-Type: application/json" --data "{\"username\":\"$username\",\"password\":\"$password\"}"  | cut -f4 -d '"'`
-tree_id=`curl -ks -X GET "https://$cluster_address:$rest_port/v1/files/%2F${nfs_export:1}/info/attributes" -H "Authorization: Bearer $bearer_token | grep -Eo '"id": .*?[^\\]"' | cut -f4 -d '"'`
-printf "$tree_id"
-curl -ks -X POST "https://$cluster_address:$rest_port/v1/tree-delete/jobs" -H "Content-Type: application/json" -H "Authorization: Bearer $bearer_token" --data "{\"id\":\"$tree_id\"}" 2>&1 > /dev/null
+tree_id=`curl -ks -X GET "https://$cluster_address:$rest_port/v1/files/%2F${nfs_export:1}/info/attributes" -H "Authorization: Bearer $bearer_token" | grep -Eo '"id": .*?[^\\]"' | cut -f4 -d '"'`
+curl -ks -X POST "https://$cluster_address:$rest_port/v1/tree-delete/jobs/" -H "Content-Type: application/json" -H "Authorization: Bearer $bearer_token" --data "{\"id\":\"$tree_id\"}" 2>&1 > /dev/null
 curl -ks -X DELETE "https://$cluster_address:$rest_port/v2/nfs/exports/%2F${nfs_export:1}" -H "Authorization: Bearer $bearer_token" 2>&1 > /dev/null
 
 printf "\nDone.\n"
