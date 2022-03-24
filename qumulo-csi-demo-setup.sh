@@ -245,10 +245,10 @@ printf "\033[33;33mPROVIDE SUDO PASSWORD IF/WHEN PROMPTED.\033[33;37m\n\n"
 
 if [[ "$os_type" == "Mac" ]]
 then
-    ip_address=`ipconfig getifaddr en0`
+    host_ip_address=`ipconfig getifaddr en0`
 elif [[ "$os_type" == "Centos7" ]]
 then
-    ip_address=`hostname -I | cut -f1 -d ' '`
+    host_ip_address=`hostname -I | cut -f1 -d ' '`
     # Open firewall port for port forwarding
     sudo firewall-cmd --zone=public --add-port=8080/tcp
 fi
@@ -266,6 +266,6 @@ printf "kubectl exec -it $mysql_pod -- mysql -u root -p\n"
 
 printf "\n\033[33;33mThe default password is \"password\"\033[33;37m\n"
 
-printf "\n\033[33;32mWeb server can be accessed at:\033[33;37m http://$ip_address:8080\n"
+printf "\n\033[33;32mWeb server can be accessed at:\033[33;37m http://$host_ip_address:8080\n"
 
 printf "\nQumulo CSI driver setup complete.\n"
