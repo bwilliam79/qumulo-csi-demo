@@ -11,7 +11,7 @@ nfs_export="/k8s" # Keep this off the root of the filesystem for simplicity. Scr
 
 # These variables should be left alone for now
 replicas="1"
-qumulo_csi_repo="https://github.com/ScottUrban/csi-driver-qumulo"
+qumulo_csi_repo="https://github.com/Qumulo/csi-driver-qumulo"
 path="./csi-driver-qumulo/deploy/"
 test_db_repo="https://github.com/datacharmer/test_db"
 
