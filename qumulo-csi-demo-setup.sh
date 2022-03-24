@@ -164,8 +164,8 @@ kubectl apply -f $path/example/storageclass-qumulo.yaml
 # kubectl apply -f $path/example/dynamic-pvc.yaml
 
 printf "\nDeploying mysql...\n"
-kubectl apply -f ./mysql-pvc-qumulo.yaml
-kubectl apply -f ./mysql-deployment.yaml
+kubectl apply -f ./yaml/mysql-pvc-qumulo.yaml
+kubectl apply -f ./yaml/mysql-deployment.yaml
 
 until kubectl get pods | grep 'mysql' 2>&1 > /dev/null
 do
@@ -222,13 +222,43 @@ kubectl cp ./test_db $mysql_pod:/
 kubectl exec $mysql_pod -- mysql -u root --password=password -A -e "source /test_db/employees.sql" 2>&1 > /dev/null
 
 printf "\nDeploying nginx...\n"
-kubectl apply -f ./nginx-pvc-qumulo.yaml
-kubectl apply -f ./nginx-deployment.yaml
+kubectl apply -f ./yaml/nginx-pvc-qumulo.yaml
+kubectl apply -f ./yaml/nginx-deployment.yaml
 
-until kubectl get pods | grep mysql 2>&1 > /dev/null
+# Get the pod name for nginx deployment
+nginx_pod=`kubectl get pods | grep -i 'nginx' | cut -f1 -d ' '`
+
+printf "nginx pod name: $nginx_pod\n"
+
+printf "\nWaiting for nginx pod deployment to complete...\n"
+until kubectl get pods | grep nginx | grep -i 'running' 2>&1 > /dev/null
 do
+    printf "."
     sleep 2
 done
+
+# Copy html onto nginx pvc via nginx container
+kubectl cp ./html/ $nginx_pod:/usr/share/nginx/
+
+printf "\nSetting up port forward for nginx service...\n"
+printf "\033[33;33mPROVIDE SUDO PASSWORD IF/WHEN PROMPTED.\033[33;37m\n\n"
+
+if [[ "$os_type" == "Mac" ]]
+then
+    ip_address=`ipconfig getifaddr en0`
+elif [[ "$os_type" == "Centos7" ]]
+then
+    ip_address=`hostname -I | cut -f1 -d ' '`
+    # Open firewall port for port forwarding
+    sudo firewall-cmd --zone=public --add-port=8080/tcp
+fi
+
+kubectl port-forward --address 0.0.0.0 service/nginx 8080:80 2>&1 > kubectl-port-forward.log &
+
+#until kubectl get pods | grep mysql 2>&1 > /dev/null
+#do
+#    sleep 2
+#done
 
 printf "\n\033[33;32mAccess mysql prompt using the following command:\033[33;37m\n\n"
 
@@ -236,6 +266,6 @@ printf "kubectl exec -it $mysql_pod -- mysql -u root -p\n"
 
 printf "\n\033[33;33mThe default password is \"password\"\033[33;37m\n"
 
-#printf "\nWeb server can be accessed at <IP>\n"
+printf "\nWeb server can be accessed at http://$ip_address:8080\n"
 
 printf "\nQumulo CSI driver setup complete.\n"
