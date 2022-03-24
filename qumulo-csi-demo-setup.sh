@@ -244,7 +244,7 @@ done
 
 # Copy html onto nginx pvc via nginx container and change permissions so everyone can edit
 kubectl cp ./html/ $nginx_pod:/usr/share/nginx/
-kubectl exec $nginx_pod -- chmod -R 666 /usr/share/nginx/html/*
+kubectl exec $nginx_pod -- chmod 666 /usr/share/nginx/html/index.html
 
 printf "\n\nSetting up port forward for nginx service...\n"
 printf "\033[33;33mPROVIDE SUDO PASSWORD IF/WHEN PROMPTED.\033[33;37m\n\n"
