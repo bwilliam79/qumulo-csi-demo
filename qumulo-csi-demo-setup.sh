@@ -64,7 +64,7 @@ else
 fi
 
 # Check minikube status and start if it is not running
-#printf "Checking minikube status...\n"
+printf "\nChecking minikube status...\n"
 minikube status | grep "Running" && minikube_status=running || minikube_status=stopped
 
 if [[ "$minikube_status" == "stopped" ]]
@@ -204,7 +204,7 @@ done
 # Pull test DB from github and populate mysql database with it
 printf "\n\nPopulating mysql database. This process may take a while...\n"
 printf "\n    *****************************************************\n"
-printf "    **** \033[33;32mNOW IS A GOOD TIME TO LOOK AT THE QUMULO UI\033[33;37m ****    \n"
+printf "    **** \033[33;32mNOW IS A GOOD TIME TO LOOK AT THE QUMULO UI\033[33;37m ****\n"
 printf "    *****************************************************\n\n"
 
 # Check if git repo has been cloned previously and delete if it exists
