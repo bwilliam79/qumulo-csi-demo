@@ -225,6 +225,11 @@ printf "\nDeploying nginx...\n"
 kubectl apply -f ./yaml/nginx-pvc-qumulo.yaml
 kubectl apply -f ./yaml/nginx-deployment.yaml
 
+until kubectl get pods | grep 'nginx' 2>&1 > /dev/null
+do
+    sleep 2
+done
+
 # Get the pod name for nginx deployment
 nginx_pod=`kubectl get pods | grep -i 'nginx' | cut -f1 -d ' '`
 
@@ -254,11 +259,6 @@ then
 fi
 
 kubectl port-forward --address 0.0.0.0 service/nginx 8080:80 2>&1 > kubectl-port-forward.log &
-
-#until kubectl get pods | grep mysql 2>&1 > /dev/null
-#do
-#    sleep 2
-#done
 
 printf "\n\033[33;32mAccess mysql prompt using the following command:\033[33;37m\n\n"
 
