@@ -9,9 +9,9 @@ username="admin" # This user must have permissions to create directories on the 
 password="Admin123"
 nfs_export="/k8s" # Keep this off the root of the filesystem for simplicity. Script mostly likely won't work otherwise.
 
-printf "\033[33;33m******************************************************************************************\n"
+printf "\033[33;33m*******************************************************************************************\n"
 printf "**** WARNING: THIS SCIPT WILL DELETE THE $nfs_export DIRECTORY FROM YOUR QUMULO FILESYSTEM!!! ****\n"
-printf "******************************************************************************************\033[33;37m\n"
+printf "*******************************************************************************************\033[33;37m\n"
 read -p "Type \"DELETE\" to continue: " confirm && [[ $confirm == "DELETE" ]] || exit 1
 
 # This variable should be left alone for now
