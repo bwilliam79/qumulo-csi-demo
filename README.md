@@ -33,3 +33,12 @@ This script performs the folloing tasks
 This script performs teh following tasks
 1. Deletes the mysql data on the Qumulo filesystem
 2. Deletes the Kubernetes deployment in minikube
+
+**Demoing**
+If everything deployed correctly, you should see instructions printed to the console for accessing the mysql instance and the web server which were deployed. You can determine the path of the pvc for the web server using the following command:
+
+```
+kubectl get pvc
+```
+
+Look for the volume name bound to nginx-pvc. This is the directory name you will look for on your Qumulo filesystem under /<NFS export>/volumes/ (e.g. /k8s/volumes/). In the directory for the nginx-pvc, you will see index.html. This file can be modified with the text editor of your choice and after doing so, you can refresh the web page for the web service to view any changes you have made.
