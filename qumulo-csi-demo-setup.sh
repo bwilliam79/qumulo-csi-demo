@@ -65,13 +65,13 @@ fi
 
 # Check minikube status and start if it is not running
 printf "\nChecking minikube status...\n"
-minikube status | grep "Running" && minikube_status=running || minikube_status=stopped
+minikube status | grep "Running" && minikube_status="running" || minikube_status="stopped"
 
 if [[ "$minikube_status" == "stopped" ]]
 then
     printf "Starting minikube...\n"
     minikube start
-    minikube status | grep "Running" && minikube_status=running || minikube_status=stopped
+    minikube status | grep "Running" && minikube_status="running" || minikube_status="stopped"
 
     # Fail if minikube did not start for some reason
     if [[ "$minikube_status" == "stopped" ]]
@@ -242,8 +242,9 @@ do
     sleep 2
 done
 
-# Copy html onto nginx pvc via nginx container
+# Copy html onto nginx pvc via nginx container and change permissions so everyone can edit
 kubectl cp ./html/ $nginx_pod:/usr/share/nginx/
+kubectl exec $nginx_pod -- chmod -R 666 /usr/share/nginx/html/*
 
 printf "\n\nSetting up port forward for nginx service...\n"
 printf "\033[33;33mPROVIDE SUDO PASSWORD IF/WHEN PROMPTED.\033[33;37m\n\n"
@@ -254,8 +255,13 @@ then
 elif [[ "$os_type" == "Centos7" ]]
 then
     host_ip_address=`hostname -I | cut -f1 -d ' '`
-    # Open firewall port for port forwarding
-    sudo firewall-cmd --zone=public --add-port=8080/tcp
+
+    # If firewalld is running, open firewall port for port forwarding
+    systemctl status firewalld | grep -i "running" && firewalld_status="running" || firewalld_status="stopped"
+    if [[ "$firewalld_status" == "running" ]]
+    then
+        sudo firewall-cmd --zone=public --add-port=8080/tcp
+    fi
 fi
 
 kubectl port-forward --address 0.0.0.0 service/nginx 8080:80 2>&1 > kubectl-port-forward.log &
